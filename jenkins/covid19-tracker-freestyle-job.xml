@@ -1,0 +1,56 @@
+package com.example.covid19tracker.controller;
+
+import com.example.covid19tracker.model.CovidSummary;
+import com.example.covid19tracker.service.CovidDataService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(CovidController.class)
+class CovidControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private CovidDataService covidDataService;
+
+    @Test
+    void shouldReturnGlobalStatsJson() throws Exception {
+        CovidSummary summary = new CovidSummary();
+        summary.setCases(123L);
+        summary.setDeaths(10L);
+        summary.setRecovered(100L);
+        summary.setActive(13L);
+
+        when(covidDataService.getGlobalStats()).thenReturn(summary);
+
+        mockMvc.perform(get("/api/covid/global"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cases").value(123))
+                .andExpect(jsonPath("$.deaths").value(10))
+                .andExpect(jsonPath("$.recovered").value(100))
+                .andExpect(jsonPath("$.active").value(13));
+    }
+
+    @Test
+    void shouldRenderHomePage() throws Exception {
+        CovidSummary summary = new CovidSummary();
+        summary.setCases(123L);
+        summary.setDeaths(10L);
+        summary.setRecovered(100L);
+        summary.setActive(13L);
+
+        when(covidDataService.getGlobalStats()).thenReturn(summary);
+
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk());
+    }
+}
